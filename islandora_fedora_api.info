@@ -1,19 +1,21 @@
 name = Islandora Fedora API
 description = Wrapper for the Fedora Commons Repository REST API.
 package = Islandora
-version = 7.x-$Format:%h$-dev
+version = 12.0.0
 core = 7.x
 
-files[] = islandora_fedora_api.raw.inc
-files[] = fedora_api.exception.inc
-files[] = fedora_api.connection.inc
+files[] = api/error/FedoraAPIObjectNotFoundException.inc 
+files[] = api/error/FedoraAPIRestException.inc
 
-;files[] = fedora_api.exception.php
-;files[] = fedora_api.client.inc
-;files[] = fedora_api.connection.inc
-;files[] = fedora_api.datastream.inc
-;files[] = fedora_api.item.inc
-;files[] = fedora_api.module
-;files[] = fedora_api.raw.inc
-;files[] = fedora_api.test
-;files[] = PropertyObject.inc
+files[] = api/impl/FedoraAPIA.inc
+files[] = api/impl/FedoraAPIM.inc
+files[] = api/impl/FedoraAPIUtils.inc
+
+files[] = api/FedoraConnection.inc 
+files[] = api/FedoraRepository.inc 
+files[] = api/FedoraDatastream.inc 
+files[] = api/FoxmlForm.inc
+files[] = api/FedoraObject.inc     
+files[] = api/PropertyObject.inc
+
+files[] = tests/islandora_fedora_api.test
