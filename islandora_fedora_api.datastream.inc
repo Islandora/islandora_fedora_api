@@ -44,6 +44,21 @@ class FedoraDatastream extends PropertyObject {
     }
   }
 
+  /**
+   * Purge this object.
+   *
+   * @param $logMessage
+   *   (Optional) The log message to pass to fedora.
+   * @param $force
+   *   (Optional)  Force the update even if it would break a data contract.
+   *
+   * @throws FedoraAPIRestException
+   */
+  public function purge($logMessage = 'Deleted by Islandora API.', $force = FALSE) {
+    $force = $force ? 'true' : 'false';
+    $this->parent->client->apim->purgeDatastream($this->parent->pid, $this->_dsID, '', '', $logMessage, $force);
+  }
+
   protected function get_dsID() {
     return $this->_dsID;
   }
