@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Lowest-level wrappers for Fedora Commons's REST API functions. 
+ * Lowest-level wrappers for Fedora Commons's REST API functions.
  * Functions return the HTTP response directly.
  *
  * All of these functions look at the response code of the error and
@@ -86,7 +86,7 @@ class FedoraAPIA {
    *   </result>
    * @endcode
    */
-  public function findObjects($terms = '', $query = '', $maxResults = '', 
+  public function findObjects($terms = '', $query = '', $maxResults = '',
     $resultFormat = 'xml', $displayFields = array('pid', 'title')
   ){
     $fedora_url = $this->connection->requestURL();
@@ -138,7 +138,7 @@ class FedoraAPIA {
    */
   public function getDatastreamDissemination($pid, $dsID, $asOfDateTime = NULL, $download = NULL) {
     $pid = drupal_urlencode($pid);
-    $fedora_url = $this->connection->requestURL(); 
+    $fedora_url = $this->connection->requestURL();
     $request = "$fedora_url/objects/$pid/datastreams/$dsID/content";
     $request .= (!empty($asOfDateTime) ? "&asOfDateTime=$asOfDateTime" : '');
     if (!empty($download)) {
@@ -174,7 +174,7 @@ class FedoraAPIA {
     $pid = drupal_urlencode($pid);
     $sdefPid = drupal_urlencode($sdefPid);
 
-    $fedora_url = $this->connection->requestURL(); 
+    $fedora_url = $this->connection->requestURL();
     $request = "$fedora_url/objects/$pid/methods/$sdefPid/$method?";
 
     //$request .= (!empty($asOfDateTime) ? "&asOfDateTime=$asOfDateTime" : '');
@@ -213,7 +213,7 @@ class FedoraAPIA {
    */
   public function getObjectHistory($pid, $format = 'xml') {
     $pid = drupal_urlencode($pid);
-    $fedora_url = $this->connection->requestURL(); 
+    $fedora_url = $this->connection->requestURL();
 
     $request = "$fedora_url/objects/$pid/versions?format=$format";
     $response = drupal_http_request($request);
@@ -264,13 +264,13 @@ class FedoraAPIA {
    */
   public function getObjectProfile($pid, $format = 'xml', $asOfDateTime = '') {
     $pid = drupal_urlencode($pid);
-    $fedora_url = $this->connection->requestURL(); 
+    $fedora_url = $this->connection->requestURL();
 
     $request = "$fedora_url/objects/$pid?format=$format";
     $request .= (!empty($asOfDateTime) ? "&asOfDateTime=$asOfDateTime" : '');
-    
+
     $response = drupal_http_request($request);
-    
+
     if(!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
@@ -305,7 +305,7 @@ class FedoraAPIA {
    */
   public function listDatastreams($pid, $format = 'xml', $asOfDateTime = '') {
     $pid = drupal_urlencode($pid);
-    $fedora_url = $this->connection->requestURL(); 
+    $fedora_url = $this->connection->requestURL();
 
     $request = "$fedora_url/objects/$pid/datastreams?format=$format";
     $request .= (!empty($asOfDateTime) ? "&asOfDateTime=$asOfDateTime" : '');
@@ -349,7 +349,7 @@ class FedoraAPIA {
    */
   public function listMethods($pid, $sdefPid = '', $format = 'xml', $asOfDateTime = '') {
     $pid = drupal_urlencode($pid);
-    $fedora_url = $this->connection->requestURL(); 
+    $fedora_url = $this->connection->requestURL();
 
     $request = "$fedora_url/objects/$pid/methods";
     $request .= (!empty($sdefPid) ? "/$sdefPid" : '');
@@ -832,15 +832,15 @@ class FedoraAPIM {
 
     $data = (!empty($file_path) ? file_get_contents($file_path) : $ds_string);
     $response = drupal_http_request($request, $headers, 'PUT', $data);
-    
+
     /*
-     * This code block attempts to run the request mulitple times 
+     * This code block attempts to run the request mulitple times
      * if there is a 'Conflict' response which can indicate that Fedora
      * simply needs more time to finish its last operation on the object
-     * 
+     *
      * This needs some more thorough testing
-     * 
-     * if this 'Conflict' gets noted during other rest calls this should be 
+     *
+     * if this 'Conflict' gets noted during other rest calls this should be
      * turned into a function
      * @author
      *   William Panting
@@ -850,8 +850,8 @@ class FedoraAPIM {
       $response = drupal_http_request($request, $headers, 'PUT', $data);
       $attempts++;
     }
-    
-    
+
+
     if(!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
@@ -867,7 +867,7 @@ class FedoraAPIM {
     $pid = drupal_urlencode($pid);
     $label = drupal_urlencode($label);
     $logMessage = drupal_urlencode($logMessage);
-    
+
     $fedora_url = $this->connection->requestURL();
     $request = $fedora_url . "/objects/$pid?";
     $request .= (!empty($label) ? "label=$label&" : '')
@@ -955,23 +955,23 @@ class FedoraAPIM {
   /**
    * This function will return all the relationships on the object that meet the restrictions specified
    * https://wiki.duraspace.org/display/FCR30/REST+API#RESTAPI-getRelationships
-   * 
+   *
    * @param string $pid
    *   Persistent identifier of the digital object.
    * @param string $predicate
    *  (optional)  If missing all relationships will be returned; this should be the namespace followed by the
    *  predicate, simply concatenated together with no delimination
    * @param string $format
-   *   (optional) format of the resonse 	xml (returns rdf/xml), rdf/xml, n-triples, turtle, sparql 
+   *   (optional) format of the resonse 	xml (returns rdf/xml), rdf/xml, n-triples, turtle, sparql
    *   defaults as xml
    * @param string $subject
    *   (optional) iether a uri for the boject or one of its datastreams, defaults to the object pid
-   * 
+   *
    * @return StdClass HTTP response object
    */
   public function getRelationships($pid, $predicate = NULL, $subject = NULL, $format = NULL) {
     $pid = drupal_urlencode($pid);
-    
+
     //druapl url encode should not be used for string arugments
     if (!empty($predicate)) {
       $predicate=urlencode($predicate);
@@ -982,29 +982,29 @@ class FedoraAPIM {
     if (!empty($format)) {
       $format=urlencode($format);
     }
-    
+
     $fedora_url = $this->connection->requestURL();
     $request = $fedora_url . "/objects/$pid/relationships?";
     $request .= (!empty($subject) ? "subject=$subject&" : '')
                          .(!empty($predicate) ? "predicate=$predicate&" : '')
                          .(!empty($format) ? "format=$format" : '');
-                         
+
     $response = drupal_http_request($request, array(), 'GET');
-    
+
     if(!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
-    
+
     return $response;
   }
-  
+
   /**
    * This function will add a single relationship to the object
    * https://wiki.duraspace.org/display/FCR30/REST+API#RESTAPI-addRelationship
-   * 
+   *
    * This function will not overwrite an existing one
-   * 
+   *
    *  @param string $pid
    *    Persistent identifier of the digital object.
    *  @param string $predicate
@@ -1012,7 +1012,7 @@ class FedoraAPIM {
    *  @param string $object
    *    object of the relationship
    *  @param array $optional_args
-   *  	(optional) This is an associative array of the optional arguments for the rest api the format is: 
+   *  	(optional) This is an associative array of the optional arguments for the rest api the format is:
    *  		string is_literal
    *    	    (optional) true if the object of the relationship is a literal, false if it is a fedora pid
    *      string subject
@@ -1032,17 +1032,17 @@ class FedoraAPIM {
     }
     if (isset($optional_args['subject'])) {
       $optional_args['subject']=urlencode($optional_args['subject']);
-    }   
-    
+    }
+
     $fedora_url = $this->connection->requestURL();
     $request = $fedora_url . "/objects/$pid/relationships/new?";
-    $request .= (isset($optional_args['subject']) ? "subject=$subject&" : '')
+    $request .= (isset($optional_args['subject']) ? "subject=" . $optional_args['subject'] . "&" : '')
                          ."predicate=$predicate&"
                          ."object=$object&"
                          .(isset($optional_args['isLiteral']) ? "isLiteral=". $optional_args['isLiteral'] ."&" : '')
                          .(isset($optional_args['datatype']) ? "datatype=". $optional_args['datatype'] : '');
     $response = drupal_http_request($request, array(), 'POST');
-    
+
     if(!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
@@ -1050,12 +1050,12 @@ class FedoraAPIM {
 
     return $response;
   }
-  
+
  /**
-   * This function will purge a single relationship (unless maybe if there is duplication) 
+   * This function will purge a single relationship (unless maybe if there is duplication)
    * from an object
    * https://wiki.duraspace.org/display/FCR30/REST+API#RESTAPI-purgeRelationship
-   * 
+   *
    *  @param string $pid
    *    Persistent identifier of the digital object.
    *  @param string $predicate
@@ -1063,7 +1063,7 @@ class FedoraAPIM {
    *  @param string $object
    *    object of the relationship
    *  @param array $optional_args
-   *  	(optional) This is an associative array of the optional arguments for the rest api the format is: 
+   *  	(optional) This is an associative array of the optional arguments for the rest api the format is:
    *  		string is_literal
    *    	    (optional) true if the object of the relationship is a literal, false if it is a fedora pid
    *      string subject
@@ -1083,17 +1083,17 @@ class FedoraAPIM {
     }
     if (isset($optional_args['subject'])) {
       $optional_args['subject']=urlencode($optional_args['subject']);
-    }   
-    
+    }
+
     $fedora_url = $this->connection->requestURL();
     $request = $fedora_url . "/objects/$pid/relationships?";
-    $request .= (isset($optional_args['subject']) ? "subject=$subject&" : '')
+    $request .= (isset($optional_args['subject']) ? "subject=" . $optional_args['subject'] . "&" : '')
                          ."predicate=$predicate&"
                          ."object=$object&"
                          .(isset($optional_args['isLiteral']) ? "isLiteral=". $optional_args['isLiteral'] ."&" : '')
                          .(isset($optional_args['datatype']) ? "datatype=". $optional_args['datatype'] : '');
     $response = drupal_http_request($request, array(), 'DELETE');
-    
+
     if(!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
@@ -1106,7 +1106,7 @@ class FedoraAPIM {
 
 /**
  * A collection of helpful utilities for dealing with fedora.
- * 
+ *
  * @todo Should this be refactored out into its own file?
  */
 class FedoraAPIUtils {
