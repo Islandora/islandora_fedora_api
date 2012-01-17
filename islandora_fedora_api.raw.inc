@@ -836,12 +836,14 @@ class FedoraAPIM {
     /*
      * This code block attempts to run the request mulitple times
      * if there is a 'Conflict' response which can indicate that Fedora
-     * simply needs more time to finish its last operation on the object
+     * simply needs more time to finish its last operation on the object.
      *
      * This needs some more thorough testing
      *
      * if this 'Conflict' gets noted during other rest calls this should be
      * turned into a function
+     * It has been noted, this needs to be pulled out and all calls to Fedora that
+     * change files should got through it.
      * @author
      *   William Panting
      */
