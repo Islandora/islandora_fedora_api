@@ -1024,18 +1024,40 @@ class FedoraAPIM {
    *  @return StdClass HTTP response object
    */
   public function addRelationship($pid, $predicate, $object, $optional_args = NULL) {
-    $pid = drupal_urlencode($pid);
-      //druapl url encode should not be used for string arugments
-    if (!empty($predicate)) {
-      $predicate=urlencode($predicate);
-    }
-    if (!empty($object)) {
-      $object=urlencode($object);
-    }
-    if (isset($optional_args['subject'])) {
-      $optional_args['subject']=urlencode($optional_args['subject']);
+    //check predicate namespace for the fragment identifier
+    if(!FedoraAPIUtils::validateRDFPredicate($predicate)) {
+      throw new Exception("There is an issue translating RDF to XML that has Fedora mangling namespaces
+    					that do not end in Fragment identifiers when this REST call is made.  One of these was found
+            	in the $predicate so the relationship was not added so as to prevent mangling.");
     }
 
+    //figure out wich datastream to add the relationship to
+    if (isset($optional_args['subject'])) {
+      if ($optional_args['subject'] != $pid) {
+        $target_datastream = 'RELS-INT';
+      }
+    }
+    if (!isset($target_datastream)) {
+      $target_datastream = 'RELS-EXT';
+    }
+
+    $pid = drupal_urlencode($pid);
+    //druapl url encode should not be used for string arugments
+    if (!empty($predicate)) {
+    $predicate = urlencode($predicate);
+    }
+    if (!empty($object)) {
+    $object = urlencode($object);
+    }
+      if (isset($optional_args['subject'])) {
+      $optional_args['subject'] = urlencode($optional_args['subject']);
+    }
+  /*
+   //this code is for the add relationship REST call that we will not be using because it mangles
+   //XML namespaces that do not end in Fragment Identifiers
+   //to use this we would have to download and check the datastream for pre-exisiting namespaces
+   //that do not have fragment identifiers so to not use it is a performance optimization
+    */
     $fedora_url = $this->connection->requestURL();
     $request = $fedora_url . "/objects/$pid/relationships/new?";
     $request .= (isset($optional_args['subject']) ? "subject=" . $optional_args['subject'] . "&" : '')
@@ -1043,13 +1065,20 @@ class FedoraAPIM {
                          ."object=$object&"
                          .(isset($optional_args['isLiteral']) ? "isLiteral=". $optional_args['isLiteral'] ."&" : '')
                          .(isset($optional_args['datatype']) ? "datatype=". $optional_args['datatype'] : '');
+
+
+    //get the current RELS datastream
+
+    //add the new relationship to the datastream
+
+    //upload the updated datastream
+
     $response = drupal_http_request($request, array(), 'POST');
 
     if(!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
-
     return $response;
   }
 
@@ -1112,6 +1141,75 @@ class FedoraAPIM {
  * @todo Should this be refactored out into its own file?
  */
 class FedoraAPIUtils {
+
+  /**
+   * This function will check an RDF predicate for correctness.  This currently
+   * means that it will make sure that the namespace is sepearated from the idiom
+   * by a Fragment Identifier.  This is to insure that inapropriate xml namespaces
+   * are not used for RDF.  This functionality can be expanded in the future as needed.
+   * @param $predicate
+   *   The predicate to check for correctness
+   * @return bool
+   *   True if the predicate passes testing
+   *   False if the predicate does not pass testing
+   */
+  public static function validateRDFPredicate($predicate) {
+     //if a # comes after the last / we are good
+     $hash_position = strrpos($predicate, '#');
+     if($hash_position) {
+       if (strrpos($predicate, '/') > $hash_position) {
+         return FALSE;
+       }
+     }
+     else {
+       return FALSE;
+     }
+     return TRUE;
+  }
+
+  /**
+   * This function will check the offending object's RELS-INT or RELS-EXT for
+   * non-deliminated namespaces.  This is necessary because Fedora will mangle
+   * namespaces and element names for entries that do not have their namespaces
+   * end in Fragment Identifiers.
+   * @note
+   * 	 This function is not used in the API but we should leave it in so that
+   *   if someone needs to repair some broken namespaces they will not need to
+   *	 recreate this function.
+   * @param $object_id
+   *   The fedora pid of the object to check
+   * @param $dsid
+   *   The fedora datastrem id fo the object to check
+   * @return bool
+   *   True if there are no broken namespaces
+   *   False if there are broken namespaces or if an improper DSID is set
+   */
+  public static function validateRDFNamespacesInRELS($object_id, $datastream_id) {
+    if ($datastream_id != 'RELS-EXT' && $datastream_id != 'RELS-INT') {
+      return FALSE;
+    }
+    module_load_include('object.inc', 'islandora_fedora_api');
+
+    $object = new FedoraObject($object_id);
+
+    $object_datastreams = $object->get_datastreams();
+
+    //proceed if the datastream exists
+    if (isset($object_datastreams[$datastream_id])) {
+      $relationship_datastream_string = $object_datastreams[$datastream_id]->content;
+      $relationship_datastream_parser = new SimpleXMLElement($relationship_datastream_string);
+      $relationship_datastream_namespaces = $relationship_datastream_parser->getNamespaces(true);
+      //iterate through namespaces and return false if one does not end in the Fragment Identifier
+      foreach ($relationship_datastream_namespaces as $relationship_namespace) {
+        $relationship_string_length = strlen($relationship_namespace);
+        if (substr($relationship_namespace, $relationship_string_length-1, $relationship_string_length) != '#') {
+          return FALSE;
+        }
+      }
+    }
+    //if a non-daliminated datastream was not found return true
+    return TRUE;
+  }
 
   /**
    * Tests if the given PID fits the general rules for a PID. Must start with a letter, must be less the 64 characters,

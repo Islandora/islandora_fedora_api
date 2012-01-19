@@ -1,19 +1,19 @@
 <?php
 /**
  * @file
- *   This file is meant to provide usefull functions for dealing with fedora 
+ *   This file is meant to provide usefull functions for dealing with fedora
  *   that are not done on individual objects or datastreams
- *   THIS IS PLACEHOLDER DON'T USE IT, 
+ *   THIS IS PLACEHOLDER DON'T USE IT,
  *   these are functions we want to re-implement in the new api
  * @todo
  *   remove all calls on islandora core
  * @todo
  *   test
- *   
+ *
  * some of these should appear in different files:
  * perhaps we should sublcass object with a collection,
  * and some query things in the repository class
- *   
+ *
  */
 
 
@@ -23,9 +23,9 @@
  *   an associated array of collection pids and names
  */
 function get_all_collections() {
-  
+
   $collection_list=array();
-  
+
   //read in the itql query for getting collections
   $query_file_name=drupal_get_path('module', 'islandora_fedora_api') . '/collection_query.txt';
   $query_file_handle=fopen($query_file_name, "r");
@@ -39,7 +39,7 @@ function get_all_collections() {
 }
 
 /**
- * This function will reduce the results on a collection search down to those 
+ * This function will reduce the results on a collection search down to those
  * applicable to this install of Islandora.
  * @author
  *   Paul Pound
@@ -60,7 +60,7 @@ function limit_collections_by_namespace($existing_collections, $pid_namespaces=n
       $pid_namespaces[$namespace] = $namespace;
     }
   }
-  
+
   $collections = array();
   foreach($existing_collections as $collection => $value){
     foreach($pid_namespaces as $key => $namespace){
@@ -81,9 +81,9 @@ function limit_collections_by_namespace($existing_collections, $pid_namespaces=n
  *   a nice array of objects
  */
 function get_related_objects($itql_query) {
-  
+
   module_load_include('inc', 'fedora_repository', 'CollectionClass');
-  
+
   $collection_class = new CollectionClass();
   $query_results = $collection_class->getRelatedItems(NULL, $itql_query);
   $list_of_objects = itql_to_array($query_results);
@@ -120,7 +120,7 @@ function itql_to_array($query_results) {
 }
 
 /**
- * This function gets all the members of a collection through the relationship of 'isMemberOf' 
+ * This function gets all the members of a collection through the relationship of 'isMemberOf'
  * and 'isMemberOfCollection' the two relationships need to be checked because there is no
  * Fedora enforced standard.
  * @author
@@ -131,16 +131,16 @@ function itql_to_array($query_results) {
  *   The array containing all the pids of members of the collection.
  */
 function get_all_members_of_collection($collection_id) {
-  
-  module_load_include('inc', 'fedora_repository', 'api/fedora_collection'); 
-  
+
+  module_load_include('inc', 'fedora_repository', 'api/fedora_collection');
+
   $member_list_full=array();
-  
+
   $member_list1=get_related_items_as_array($collection_id, 'isMemberOf', 10000 , 0, FALSE);
   $member_list2=get_related_items_as_array($collection_id, 'isMemberOfCollection', 10000 , 0, FALSE);
-  
+
   $member_list_full=array_merge($member_list1, $member_list2);
-  
+
   return $member_list_full;
 }
 
@@ -249,7 +249,7 @@ return '';
 
   $query_string .= ') ';
   $query_string .=  $active_objects_only ? 'and $object <fedora-model:state> <info:fedora/fedora-system:def/model#Active>' : '';
-  
+
   if ($cmodel) {
   $query_string .= ' and $content <mulgara:is> <info:fedora/' . $cmodel . '>';
 }
@@ -259,7 +259,7 @@ return '';
   order by '.$orderby;
 
   $query_string = htmlentities(urlencode($query_string));
-  
+
 
   $content = '';
   $url = variable_get('fedora_repository_url', 'http://localhost:8080/fedora/risearch');
@@ -285,14 +285,14 @@ return '';
   }*/
 
 /**
- * 
+ *
  */
 
   /**
     * Performs the given ITQL query.
     * Might be duplicating code from the Fedora API (I seem to recall something
     *   but with a weird name).
-    * 
+    *
     * FIXME: Could probably made more fail-safe (avoiding passing directly from the curl call to loadXML, for example.)
     *
      * @author
@@ -300,7 +300,7 @@ return '';
     * @param String $query
     * @param Integer $limit
     * @param Integer $offset
-    * @return DOMDocument 
+    * @return DOMDocument
     */
 function performItqlQuery($query, $limit = -1, $offset = 0) {
        $queryUrl = variable_get('fedora_repository_url', 'http://localhost:8080/fedora/risearch');
@@ -308,8 +308,8 @@ function performItqlQuery($query, $limit = -1, $offset = 0) {
        $doc = DOMDocument::loadXML(do_curl($queryUrl));
        return ((!$doc)?(new DOMDocument()):($doc));
    }
-   
-   
+
+
 /**
  * This function will get the collection that the indicated object is a member of
  * @param string $object_id
@@ -328,7 +328,7 @@ function get_object_parent($object_id) {
   $apim_object= new FedoraAPIM();
   $relationships_parser = new DOMDocument();
   $parent=FALSE;
-  
+
   //get relation ship data
   try {
     $relationships=$apim_object->getRelationships($object_id, $parent_relationship_namespace . $parent_relationship);
@@ -340,13 +340,13 @@ function get_object_parent($object_id) {
   catch (FedoraAPIRestException $e) {
     return FALSE;
   }
-  
+
   //handle second collecion memberships string if the first wasn't found
   if (empty($relationship)) {
     $parent_relationship='isMemberOfCollection';
     try {
       $relationships=$apim_object->getRelationships($object_id, $parent_relationship_namespace . $parent_relationship);
-      //grab realtionship 
+      //grab realtionship
       $relationships_parser->loadXML($relationships->data);
       $relationship_elements=$relationships_parser->getElementsByTagNameNS($parent_relationship_namespace, $parent_relationship);
       $relationship=$relationship_elements->item(0);
@@ -355,7 +355,7 @@ function get_object_parent($object_id) {
       return FALSE;
     }
   }
-  
+
   //handle relationship data
   if (!empty($relationship)) {
     $parent=$relationship->getAttributeNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#', 'resource');
@@ -366,3 +366,50 @@ function get_object_parent($object_id) {
   }
   return $parent;
 }
+
+
+/**
+ * WE MAY WANT TO USE THIS AS A TEMPLATE FOR A SIMILAR FUNCTION
+* This function will set the indicated relationship on the indicated object.
+* It will create or replace the relationship  as apropriate.
+* The
+* @param $object_id
+*   the fedora pid of the object whos rels-ext will be modified
+* @param string $relationship
+*   the relationship to set
+* @param string $target
+*   a litteral or fedora pid string (object of the relationship)
+* @param string $subject
+*   This defaults to the object's pid in the REST interface, only specify if a datastream
+* @return
+*   the response from fedora for adding/modifying the relationship
+* @todo
+*   Update to use subject and object so it will work with rels-int
+*
+function islandora_workflow_set_object_relationship($object_id, $relationship_in, $target, $subject = NULL) {
+  //init
+  $islandora_workflow_namespace='info:islandora/islandora-system:def/islandora_workflow#';
+  module_load_include('raw.inc', 'islandora_fedora_api'); //for getting an object
+  $apim_object= new FedoraAPIM();
+
+  //get existing relationshp
+  $relationships = $apim_object->getRelationships($object_id, $islandora_workflow_namespace . $relationship_in, $subject);
+
+
+  $relationships_parser = new DOMDocument();
+  $relationships_parser->loadXML($relationships->data);
+  $relationship_elements = $relationships_parser->getElementsByTagNameNS($islandora_workflow_namespace, $relationship_in);
+  $current_relationship = NULL;
+  $relationship = $relationship_elements->item(0);
+
+  if (!empty($relationship)) {
+    foreach ($relationship->childNodes as $relationship_text_node) {
+      $current_relationship = $relationship_text_node->nodeValue;
+      //clear current relationship
+      $purge_response = $apim_object->purgeRelationship($object_id, $islandora_workflow_namespace . $relationship_in, $current_relationship, array('isLiteral' => 'true', 'subject' => $subject));
+    }
+  }
+  //set new relationship
+  $apim_object->addRelationship($object_id, $islandora_workflow_namespace . $relationship_in, $target, array('isLiteral' => 'true', 'subject' => $subject));
+}
+*/
