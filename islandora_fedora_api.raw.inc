@@ -1032,6 +1032,8 @@ class FedoraAPIM {
     					that do not end in Fragment identifiers when this REST call is made.  One of these was found
             	in the $predicate so the relationship was not added so as to prevent mangling.");
     }
+    //constants
+    $rdf_namespace = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 
     //figure out which datastream to add the relationship to
     if (isset($optional_args['subject'])) {
@@ -1058,48 +1060,93 @@ class FedoraAPIM {
       $relationship_datastream_string = $object_datastreams[$target_datastream]->content;
       $relationship_datastream_parser->loadXML($relationship_datastream_string);
       $description_elements = $relationship_datastream_parser->getElementsByTagName('Description');
-      //FedoraAPIUtils::dsmDOMDocumentElementAttributes($rdf_xml_to_write)
       $description_node_found = FALSE;
-      dsm($target_datastream);
+
       foreach ($description_elements as $description_element) {
-        if ($description_element->hasAttributeNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#', 'about')) {
-          $description_about = $description_element->getAttributeNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#', 'about');
+        if ($description_element->hasAttributeNS($rdf_namespace, 'about')) {
+          $description_about = $description_element->getAttributeNS($rdf_namespace, 'about');
           //when in the description of the subject
           if ($description_about == $optional_args['subject']) {
             $description_node_found = TRUE;
-            dsm('found about');
+            $description_node = $description_element;
           }
         }
       }
       if (!$description_node_found) {//create a description node if there isn't one for the subject
-        dsm('no such element');
+        $description_node = $relationship_datastream_parser->createElementNS($rdf_namespace, 'about');
+        $description_node->setAttributeNS($rdf_namespace, 'about', $optional_args['subject']);
+        $relationship_datastream_parser_root = $relationship_datastream_parser->document_element();
+        $relationship_datastream_parser_root->appendChild($description_node);
+        dsm('created about');
       }
     }
     else {//if the datastream does not exist yet
       //create a RELS datastream
-      $relationship_datastream_string = '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:fedora="info:fedora/fedora-system:def/relations-external#" xmlns:fedora-model="info:fedora/fedora-system:def/model#">
+      $relationship_datastream_string = '<rdf:RDF xmlns:rdf="' . $rdf_namespace . '" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:fedora="info:fedora/fedora-system:def/relations-external#" xmlns:fedora-model="info:fedora/fedora-system:def/model#">
       <rdf:Description rdf:about="'. $optional_args['subject'] .'" > </rdf:Description></rdf:RDF>';
       $relationship_datastream_parser->load($relationship_datastream_string);
+      $description_elements = $relationship_datastream_parser->getElementsByTagName('Description');
+      $description_node = $description_elements->item(0);
     }
 
-    //create the relationship node
+    //create the relationship node and add the object
     $predicate_array = FedoraAPIUtils::explodePredicate($predicate);
     $rdf_xml_relationship_to_write = $relationship_datastream_parser->createElementNS($predicate_array['namespace'], $predicate_array['local_name']);
-
     if (!isset($optional_args['isLiteral'])) {//set is_literal if not set to FALSE to simplify logic
       $optional_args['isLiteral'] = FALSE;
     }
-    if ($optional_args['isLiteral']) {//if the subject is a litteral then it is added to the element's text
-      dsm('is literal');
+    if ($optional_args['isLiteral']) {//if the object is a litteral then it is added to the element's text
+      $relationship_text = $relationship_datastream_parser->createTextNode($object);
+      $rdf_xml_relationship_to_write->appendChild($relationship_text);
     }
-    else {//if the subject is not a literal then it is added to rdf:resource attribute
+    else {//if the object is not a literal then it is added to rdf:resource attribute
+      $rdf_xml_relationship_to_write->setAttributeNS($rdf_namespace, 'resource', $object);
       dsm('is resource');
     }
-    FedoraAPIUtils::dsmDOMDocument_Element($rdf_xml_relationship_to_write);
+
     //add the new relationship to the datastream
-    //$description_node->appendChild(rdf_xml_to_write);
+    $description_node->appendChild($rdf_xml_relationship_to_write);
+    dsm($relationship_datastream_parser->saveXML());
 
     //upload the updated or new datastream if $new, if $update
+
+    if (!isset($object_datastreams[$target_datastream])) {
+      dsm('adding ' . $target_datastream);
+      $response = $this->addDatastream(
+        $pid, $target_datastream, $file_path = NULL, $ds_string = $relationship_datastream_parser->saveXML(),
+        $params = array(
+          'controlGroup' => 'X',
+          'dsLocation' => NULL,
+          'altIDs' => NULL,
+          'dsLabel' => NULL,
+          'dsState' => NULL,
+          'formatURI' => NULL,
+          'checksumType' => NULL,
+          'checksum' => NULL,
+          'mimeType' => 'text/xml',
+          'logMessage' => 'Datastream created via addRelationship method of islandora_fedora_api',
+        )
+      );
+    }
+    else {
+      dsm('modifying ' . $target_datastream);
+      $response = $this->modifyDatastream( $pid, $target_datastream, $file_path = NULL, $ds_string = $relationship_datastream_parser->saveXML(),
+        $params = array(
+          'dsLocation' => NULL,
+          'altIDs' => NULL,
+          'dsLabel' => NULL,
+          'versionable' => NULL,
+          'dsState' => NULL,
+          'formatURI' => NULL,
+          'checksumType' => NULL,
+          'checksum' => NULL,
+          'mimeType' => 'text/xml',
+          'logMessage' => 'Datastream updated via addRelationship method of islandora_fedora_api',
+          'force' => NULL,
+          'ignoreContent' => NULL
+        )
+      );
+    }
     /*
      //this code is for the add relationship REST call that we will not be using because it mangles
     //XML namespaces that do not end in Fragment Identifiers
@@ -1107,7 +1154,7 @@ class FedoraAPIM {
     //that do not have fragment identifiers so to not use it is a performance optimization
     */
     //druapl url encode should not be used for string arugments
-    $pid = drupal_urlencode($pid);
+    /*$pid = drupal_urlencode($pid);
     if (!empty($predicate)) {
     $predicate = urlencode($predicate);
     }
@@ -1130,7 +1177,8 @@ class FedoraAPIM {
     if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
-    }
+    }*/
+    dsm($response);
     return $response;
   }
 
@@ -1193,26 +1241,6 @@ class FedoraAPIM {
  * @todo Should this be refactored out into its own file?
  */
 class FedoraAPIUtils {
-
-  /**
-   * temporary, remove when done with debugging
-   */
-  public static function dsmDOMDocument_Element($element) {
-    $dom = new DOMDocument();
-    $imported_node = $dom->importNode($element, TRUE);
-    $dom->appendChild($imported_node);
-    dsm($dom->saveXML());
-  }
-  public static function dsmDOMDocumentElementAttributes($element) {
-      $attribute_array = array();
-    if ($element->hasAttributes()) {
-      $attributes = $element->attributes;
-      foreach ($attributes as $attribute_node) {
-        $attribute_array[$attribute_node->nodeName] = $attribute_node->nodeValue;
-      }
-    }
-    dsm($attribute_array);
-  }
 
   /**
    * This function will check an RDF predicate for correctness.  This currently
