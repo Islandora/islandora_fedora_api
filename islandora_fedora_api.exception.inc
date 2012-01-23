@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * @file
+ *   This file holds custom exception classes that the api can throw.
+ */
 /**
  * General exception thrown on unexpected REST response.
  */
@@ -20,7 +23,7 @@ class FedoraAPIRestException extends Exception {
   public $pid;
 
   /**
-   * Constructs a new Rest Exception. $http->error is passed to parent as $message and 
+   * Constructs a new Rest Exception. $http->error is passed to parent as $message and
    * $http->code is passed to $code.
    *
    * @param StdClass HTTP Response $http
@@ -33,7 +36,7 @@ class FedoraAPIRestException extends Exception {
     $this->pid = $pid;
     parent::__construct($http->error, $http->code);
   }
-  
+
 }
 
 /**

@@ -1,5 +1,10 @@
 <?php
 /**
+ * @file
+ *  Holds a class to handle connections to Fedora for the REST interface.
+ */
+
+/**
  * Represents a connection to a Fedora-Commons Repository using the REST API
  */
 class FedoraConnection {
@@ -17,12 +22,12 @@ class FedoraConnection {
     else {
       $this->url = variable_get('fedora_base_url', 'http://localhost:8080/fedora');
     }
-    
+
     if (!empty($username)) {
       $fedora_user = $username;
       $fedora_pass = $password;
     }
-    elseif (!variable_get('fedora_drupal_filter',1)) {
+    elseif (!variable_get('fedora_drupal_filter', 1)) {
       $fedora_user = variable_get('fedora_user', '');
       $fedora_pass = variable_get('fedora_password', '');
     }
@@ -36,10 +41,10 @@ class FedoraConnection {
     }
     $this->username = $fedora_user;
     $this->password = $fedora_pass;
-    
-    
+
+
   }
-  
+
    /**
    * Inserts a username and password into a URL giving a format like "http://user:pass@domain.com/"
    * This is the format expected by PHP's parse_url function.
@@ -48,7 +53,7 @@ class FedoraConnection {
   function requestURL() {
     return (!empty($this->username) ? substr_replace($this->url, "$this->username" . (!empty($this->password) ? ":$this->password@" : '@'), strpos($this->url, '://') + 3, 0) : $this->url);
   }
-  
+
   function getObject($pid) {
     return new FedoraItem($pid, $this);
   }

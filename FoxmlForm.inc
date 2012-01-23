@@ -45,7 +45,7 @@ class FoxmlDocument extends DOMDocument {
    * @param <type> $collection_pid
    * @param <type> $relationship
    * @param <type> $ingest_file_location
-   * @param <type> $document 
+   * @param <type> $document
    */
   public function __construct($label, $pid, $dsid, $content_model_pid, $collection_pid, $relationship, $ingest_file_location, $document, $transform) {
     global $user;
@@ -220,21 +220,21 @@ class FoxmlDocument extends DOMDocument {
     try {
       $xml = new SimpleXMLElement($policy_stream);
     } catch (Exception $exception) {
-      watchdog(t("Fedora_Repository"), t("Problem getting security policy."), NULL, WATCHDOG_ERROR);
+      watchdog("Fedora_Repository", "Problem getting security policy.", NULL, WATCHDOG_ERROR);
       drupal_set_message(t('Problem getting security policy: !e', array('!e' => $exception->getMessage())), 'error');
       return FALSE;
     }
     $policy_element = $this->createDocumentFragment();
     if (!$policy_element) {
       drupal_set_message(t('Error parsing security policy stream.'));
-      watchdog(t("Fedora_Repository"), t("Error parsing security policy stream, could not parse policy stream."), NULL, WATCHDOG_NOTICE);
+      watchdog("Fedora_Repository", "Error parsing security policy stream, could not parse policy stream.", NULL, WATCHDOG_NOTICE);
       return FALSE;
     }
     $this->importNode($policy_element, TRUE);
     $value = $policy_element->appendXML($policy_stream);
     if (!$value) {
       drupal_set_message(t('Error creating security policy stream.'));
-      watchdog(t("Fedora_Repository"), t("Error creating security policy stream, could not parse collection policy template file."), NULL, WATCHDOG_NOTICE);
+      watchdog("Fedora_Repository", "Error creating security policy stream, could not parse collection policy template file.", NULL, WATCHDOG_NOTICE);
       return FALSE;
     }
     return $policy_element;
@@ -348,7 +348,7 @@ class FoxmlDocument extends DOMDocument {
     // Once again god damn you libxml...
     $class = get_class($this->document);
     $namespaces = call_user_func(array($class, 'getRequiredNamespaces'));
-    foreach($namespaces as $prefix => $uri) {
+    foreach ($namespaces as $prefix => $uri) {
       $node->setAttributeNS(self::xmlns, "xmlns:$prefix", $uri);
     }
   }
@@ -402,7 +402,7 @@ class FoxmlDocument extends DOMDocument {
       file_delete($this->ingestFileLocation);
     } catch (exception $exception) {
       drupal_set_message(t('Error ingesting object: !e', array('!e' => $exception->getMessage())), 'error');
-      watchdog(t("Fedora_Repository"), t("Error ingesting object: !e", array('!e' => $exception->getMessage())), NULL, WATCHDOG_ERROR);
+      watchdog("Fedora_Repository", "Error ingesting object: !e". $exception->getMessage(), NULL, WATCHDOG_ERROR);
     }
     return $ret;
   }

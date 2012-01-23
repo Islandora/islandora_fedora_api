@@ -26,7 +26,7 @@ class FedoraRepository {
    */
   function __construct($connection = NULL) {
     if (empty($connection)) {
-      
+
       module_load_include('connection.inc', 'islandora_fedora_api');
       $connection = new FedoraConnection();
     }
@@ -63,7 +63,7 @@ class FedoraRepository {
       'ownerId'    => NULL,
       'logMessage' => NULL,
     )
-  ){
+  ) {
 
     $response = $this->api->ingest(
       $foxml_file, $foxml_string,
@@ -88,14 +88,14 @@ class FedoraRepository {
    * @param string $terms Search terms, e.g. "changeme:*"
    * @param string $query Detailed search query, e.g. "pid=demo:12"
    * @param int $max_results
-   * @param array $display_fields 
+   * @param array $display_fields
    * @return array The result set with the specified fields populated
    */
   function findObjects($terms = NULL, $query = NULL, $max_results = 50, $display_fields = array('pid', 'label', 'state', 'ownerId', 'cDate', 'mDate', 'dcmDate',
     'title', 'creator', 'subject', 'description', 'publisher', 'contributor', 'date', 'type',
     'format', 'identifier', 'source', 'language', 'relation', 'coverage', 'rights')) {
 
-    // pid needs to be part of the displayFields so we can construct the results array.  
+    // pid needs to be part of the displayFields so we can construct the results array.
     if (!in_array('pid', $display_fields)) {
       $display_fields[] = 'pid';
     }
@@ -120,7 +120,7 @@ class FedoraRepository {
   }
 
   /**
-   * Simple wrapper for findObjects that returns TRUE if an object with the 
+   * Simple wrapper for findObjects that returns TRUE if an object with the
    * specified pid exists in the repository.
    * @param string $pid
    * @return boolean
