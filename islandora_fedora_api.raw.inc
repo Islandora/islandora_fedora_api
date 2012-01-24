@@ -1069,11 +1069,12 @@ class FedoraAPIM {
           if ($description_about == $optional_args['subject']) {
             $description_node_found = TRUE;
             $description_node = $description_element;
+            break;
           }
         }
       }
-      if (!$description_node_found) {//create a description node if there isn't one for the subject
-        $description_node = $relationship_datastream_parser->createElementNS($rdf_namespace, 'about');
+      if (!$description_node_found) {//create an "about" node if there isn't one for the subject
+        $description_node = $relationship_datastream_parser->createElementNS($rdf_namespace, 'Description');
         $description_node->setAttributeNS($rdf_namespace, 'about', $optional_args['subject']);
         $relationship_datastream_parser_root = $relationship_datastream_parser->document_element();
         $relationship_datastream_parser_root->appendChild($description_node);
@@ -1095,7 +1096,7 @@ class FedoraAPIM {
     if (!isset($optional_args['isLiteral'])) {//set is_literal if not set to FALSE to simplify logic
       $optional_args['isLiteral'] = FALSE;
     }
-    if ($optional_args['isLiteral']) {//if the object is a litteral then it is added to the element's text
+    if ($optional_args['isLiteral']) {//if the object is a literal then it is added to the element's text
       $relationship_text = $relationship_datastream_parser->createTextNode($object);
       $rdf_xml_relationship_to_write->appendChild($relationship_text);
     }
@@ -1112,9 +1113,8 @@ class FedoraAPIM {
 
     if (!isset($object_datastreams[$target_datastream])) {
       dsm('adding ' . $target_datastream);
-      $response = $this->addDatastream(
-        $pid, $target_datastream, $file_path = NULL, $ds_string = $relationship_datastream_parser->saveXML(),
-        $params = array(
+      $response = $this->addDatastream($pid, $target_datastream, $file_path = NULL,
+        $ds_string = $relationship_datastream_parser->saveXML(), $params = array(
           'controlGroup' => 'X',
           'dsLocation' => NULL,
           'altIDs' => NULL,
@@ -1125,13 +1125,13 @@ class FedoraAPIM {
           'checksum' => NULL,
           'mimeType' => 'text/xml',
           'logMessage' => 'Datastream created via addRelationship method of islandora_fedora_api',
-        )
-      );
+        ));
     }
     else {
       dsm('modifying ' . $target_datastream);
-      $response = $this->modifyDatastream( $pid, $target_datastream, $file_path = NULL, $ds_string = $relationship_datastream_parser->saveXML(),
-        $params = array(
+      $response = $this->modifyDatastream($pid, $target_datastream, $file_path = NULL,
+        $ds_string = $relationship_datastream_parser->saveXML(), $params = array(
+       	  //'controlGroup'?
           'dsLocation' => NULL,
           'altIDs' => NULL,
           'dsLabel' => NULL,
@@ -1144,8 +1144,7 @@ class FedoraAPIM {
           'logMessage' => 'Datastream updated via addRelationship method of islandora_fedora_api',
           'force' => NULL,
           'ignoreContent' => NULL
-        )
-      );
+        ));
     }
     /*
      //this code is for the add relationship REST call that we will not be using because it mangles
@@ -1153,32 +1152,36 @@ class FedoraAPIM {
     //to use this we would have to download and check the datastream for pre-exisiting namespaces
     //that do not have fragment identifiers so to not use it is a performance optimization
     */
-    //druapl url encode should not be used for string arugments
-    /*$pid = drupal_urlencode($pid);
+    /*
+    $pid = drupal_urlencode($pid);
+    //drupal url encode should not be used for string arugments
     if (!empty($predicate)) {
-    $predicate = urlencode($predicate);
+        $predicate = urlencode($predicate);
     }
     if (!empty($object)) {
-    $object = urlencode($object);
+        $object = urlencode($object);
     }
     if (isset($optional_args['subject'])) {
-    $optional_args['subject'] = urlencode($optional_args['subject']);
+        $optional_args['subject'] = urlencode($optional_args['subject']);
     }
+
     $fedora_url = $this->connection->requestURL();
     $request = $fedora_url . "/objects/$pid/relationships/new?";
-        $request .= (isset($optional_args['subject']) ? "subject=" . $optional_args['subject'] . "&" : '')
-    ."predicate=$predicate&"
-                             . "object=$object&"
-                             . (isset($optional_args['isLiteral']) ? "isLiteral=". $optional_args['isLiteral'] ."&" : '')
-                             . (isset($optional_args['datatype']) ? "datatype=" . $optional_args['datatype'] : '');
+    $request .= (isset($optional_args['subject']) ? "subject=" . $optional_args['subject'] . "&" : '')
+                         . "predicate=$predicate&"
+                         . "object=$object&"
+                         . (isset($optional_args['isLiteral']) ? "isLiteral=". $optional_args['isLiteral'] ."&" : '')
+                         . (isset($optional_args['datatype']) ? "datatype=". $optional_args['datatype'] : '');
 
     $response = drupal_http_request($request, array(), 'POST');
 
     if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
-    }*/
+    }
+    */
     dsm($response);
+
     return $response;
   }
 
@@ -1221,8 +1224,8 @@ class FedoraAPIM {
     $request .= (isset($optional_args['subject']) ? "subject=" . $optional_args['subject'] . "&" : '')
                          . "predicate=$predicate&"
                          . "object=$object&"
-                         . (isset($optional_args['isLiteral']) ? "isLiteral=" . $optional_args['isLiteral'] ."&" : '')
-                         . (isset($optional_args['datatype']) ? "datatype=" . $optional_args['datatype'] : '');
+                         . (isset($optional_args['isLiteral']) ? "isLiteral=". $optional_args['isLiteral'] ."&" : '')
+                         . (isset($optional_args['datatype']) ? "datatype=". $optional_args['datatype'] : '');
     $response = drupal_http_request($request, array(), 'DELETE');
 
     if (!FedoraAPIUtils::testSuccess($response)) {
@@ -1256,15 +1259,8 @@ class FedoraAPIUtils {
   public static function validateRDFPredicate($predicate) {
      //if a # comes after the last / we are good
      $hash_position = strrpos($predicate, '#');
-     if ($hash_position) {
-       if (strrpos($predicate, '/') > $hash_position) {
-         return FALSE;
-       }
-     }
-     else {
-       return FALSE;
-     }
-     return TRUE;
+     $slash_position = strrpos($predicate, '/');
+     return $hash_position && $slash_position && !($slash_position > $hash_position);
   }
 
   /**
@@ -1319,7 +1315,7 @@ class FedoraAPIUtils {
       //iterate through namespaces and return false if one does not end in the Fragment Identifier
       foreach ($relationship_datastream_namespaces as $relationship_namespace) {
         $relationship_string_length = strlen($relationship_namespace);
-        if (substr($relationship_namespace, $relationship_string_length-1, $relationship_string_length) != '#') {
+        if (substr($relationship_namespace, $relationship_string_length-1, 1) != '#') {
           return FALSE;
         }
       }
