@@ -1131,7 +1131,6 @@ class FedoraAPIM {
       dsm('modifying ' . $target_datastream);
       $response = $this->modifyDatastream($pid, $target_datastream, $file_path = NULL,
         $ds_string = $relationship_datastream_parser->saveXML(), $params = array(
-       	  //'controlGroup'?
           'dsLocation' => NULL,
           'altIDs' => NULL,
           'dsLabel' => NULL,
