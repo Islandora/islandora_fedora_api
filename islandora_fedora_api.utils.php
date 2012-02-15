@@ -32,9 +32,9 @@ function get_all_collections() {
   $query_string=fread($query_file_handle, filesize($query_file_name));
   fclose($query_file_handle);
   //make query
-  $collection_list=get_related_objects($query_string);
+  $collection_list = get_related_objects($query_string);
   //strip out non-applicable collections via namespace
-  $collection_list=limit_collections_by_namespace($collection_list);
+  $collection_list = limit_collections_by_namespace($collection_list);
   return $collection_list;
 }
 
@@ -283,32 +283,6 @@ return '';
   }
   return $resultsarray;
   }*/
-
-/**
- *
- */
-
-  /**
-    * Performs the given ITQL query.
-    * Might be duplicating code from the Fedora API (I seem to recall something
-    *   but with a weird name).
-    *
-    * FIXME: Could probably made more fail-safe (avoiding passing directly from the curl call to loadXML, for example.)
-    *
-     * @author
-     *   Adam
-    * @param String $query
-    * @param Integer $limit
-    * @param Integer $offset
-    * @return DOMDocument
-    */
-function performItqlQuery($query, $limit = -1, $offset = 0) {
-       $queryUrl = variable_get('fedora_repository_url', 'http://localhost:8080/fedora/risearch');
-       $queryUrl .= "?type=tuples&flush=TRUE&format=Sparql" . (($limit > 0)?("&limit=$limit"):("")) . "&offset=$offset&lang=itql&stream=on&query=" . urlencode($query);
-       $doc = DOMDocument::loadXML(do_curl($queryUrl));
-       return ((!$doc)?(new DOMDocument()):($doc));
-   }
-
 
 /**
  * This function will get the collection that the indicated object is a member of
