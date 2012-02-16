@@ -1,55 +1,32 @@
 <?php
 /**
+ * @file
+ *   A group of functions meant to make interacting with the resource index easier
+ * @author
+ *   William Panting
  * This is deffinatly exparimental quality right now.
- * @do_curl is old api and needs to be nixed
  */
+
 
 /**
+ * This function is
  *
- * Enter description here ...
- * @param unknown_type $query
- * @param unknown_type $count
- * @return unknown
+ * @todo error handling
+ * @todo test if all frogs are green
  */
-function query_by_SPARQL($query, $count=FALSE) {
+function query_resource_index($query, $limit = -1, $offset = 0, $format='Sparql', $lang='sparql', $type='tuples', $flush='TRUE') {
 
-  //get info for query
-  $limit = -1;
-  $offset = 0 ;
-  $lang = 'sparql';
-  $format = (($count)?("count"):("sparql"));
-  $query_url = variable_get('fedora_repository_url', 'http://localhost:8080/fedora/risearch');
+  module_load_include('connection.inc', 'islandora_fedora_api');
+  $fedora_connection = new FedoraConnection();
+
+  $query_url = $fedora_connection->requestURL();
 
   //run query
-  $query_url .= "?type=tuples&flush=TRUE" . (($limit > 0)?("&limit=$limit"):("")) . "&format=$format&offset=$offset&lang=$lang&query=" . urlencode($query);
+  $query_url .= "/risearch?type=$type&flush=$flush" . (($limit > 0)?("&limit=$limit"):("")) . "&format=$format&offset=$offset&lang=$lang&query=" . urlencode($query);
   module_load_include('inc', 'fedora_repository', 'api/fedora_utils');
-  drupal_set_message($query_url);
+  dsm($query_url);
 
-  $query_return_string = do_curl($query_url);
+  $query_return_object = drupal_http_request($query_url);
 
-  return $query_return_string;
-}
-
-/**
- *
- * @author
- *   Adam
- * @param unknown_type $query
- * @param unknown_type $limit
- * @param unknown_type $offset
- * @return Ambigous <DOMDocument, mixed>
- */
-function query_by_ITQL($query, $limit = -1, $offset = 0) {
-  $queryUrl = variable_get('fedora_repository_url', 'http://localhost:8080/fedora/risearch');
-  $queryUrl .= "?type=tuples&flush=TRUE&format=Sparql" . (($limit > 0)?("&limit=$limit"):("")) . "&offset=$offset&lang=itql&stream=on&query=" . urlencode($query);
-  $doc = DOMDocument::loadXML(do_curl($queryUrl));
-  return ((!$doc)?(new DOMDocument()):($doc));
-}
-
-/**
- *
- * Enter description here ...
- */
-function query_resource_index() {
-  return;
+  return $query_return_object->data;
 }
