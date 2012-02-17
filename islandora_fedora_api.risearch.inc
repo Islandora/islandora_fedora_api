@@ -37,32 +37,6 @@ function query_resource_index($query, $limit = -1, $offset = 0, $format='Sparql'
   return $query_return_object->data;
 }
 
-/*
- //format query results for use (xml->array)
-  $result_nodes = $query_return_dom->getElementsByTagName('result');
-  $result_nodes_length = $result_nodes->length;
-  if ($result_nodes_length > 0) {
-    for ($i=0; $i < $result_nodes_length; $i++) {
-      $result_node = $result_nodes->item($i);
-      $result_values = $result_node->childNodes;
-
-      $label_element = $result_node->getElementsByTagName('label')->item(0);
-
-      $member_object = $member_object_element->getAttribute('uri');
-      //info:fedora/ is 12 chars
-      $member_object = substr($member_object, 12, strlen($member_object));//need to extract the pid
-
-      $member_data[$member_object] = array();
-
-      if ($label_element) {
-        $label = $label_element->nodeValue;
-        if ($label) {
-          //the label may not be pupulated
-          $member_data[$member_object]['label'] = $label;
-        }
-      }
-    }
- */
 
 /**
  * This function is used to get a list containing all of the islandora collections in a Fedora repo
