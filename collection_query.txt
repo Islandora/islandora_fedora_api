@@ -1,7 +1,7 @@
 select $object $title $content
 from <#ri>
 where (
-  (
+  ((
     $object <fedora-model:label> $title
     and $object <fedora-model:hasModel> $content
     and $content <fedora-model:hasModel> <info:fedora/islandora:collectionCModel>
@@ -11,6 +11,7 @@ where (
     $object <fedora-model:label> $title
     and $object <fedora-model:hasModel> $content
     and $object <fedora-model:hasModel> <info:fedora/islandora:collectionCModel>
-  )
+  ))
+  and $object <fedora-model:state> <info:fedora/fedora-system:def/model#Active>
 ) 
 order by $title;
