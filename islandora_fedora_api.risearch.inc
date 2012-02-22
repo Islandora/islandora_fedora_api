@@ -30,7 +30,6 @@ function query_resource_index($query, $limit = -1, $offset = 0, $format='Sparql'
   //run query
   $query_url .= "/risearch?type=$type&flush=$flush" . (($limit > 0)?("&limit=$limit"):("")) . "&format=$format&offset=$offset&lang=$lang&query=" . urlencode($query);
   module_load_include('inc', 'fedora_repository', 'api/fedora_utils');
-  dsm($query_url);
 
   $query_return_object = drupal_http_request($query_url);
 

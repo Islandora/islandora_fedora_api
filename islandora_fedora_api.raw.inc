@@ -1078,18 +1078,15 @@ class FedoraAPIM {
         $description_node->setAttributeNS($rdf_namespace, 'about', $optional_args['subject']);
         $relationship_datastream_parser_root = $relationship_datastream_parser->document_element();
         $relationship_datastream_parser_root->appendChild($description_node);
-        dsm('created about');
       }
     }
     else {//if the datastream does not exist yet
       //create a RELS datastream
-      $relationship_datastream_string = '<rdf:RDF xmlns:rdf="' . $rdf_namespace . '" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:fedora="info:fedora/fedora-system:def/relations-external#" xmlns:fedora-model="info:fedora/fedora-system:def/model#">
-      <rdf:Description rdf:about="'. $optional_args['subject'] .'" > </rdf:Description></rdf:RDF>';
-      $relationship_datastream_parser->load($relationship_datastream_string);
+      $relationship_datastream_string = '<rdf:RDF xmlns:rdf="' . $rdf_namespace . '" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:fedora="info:fedora/fedora-system:def/relations-external#" xmlns:fedora-model="info:fedora/fedora-system:def/model#"><rdf:Description rdf:about="'. $optional_args['subject'] .'" > </rdf:Description></rdf:RDF>';
+      $relationship_datastream_parser->loadXML($relationship_datastream_string);
       $description_elements = $relationship_datastream_parser->getElementsByTagName('Description');
       $description_node = $description_elements->item(0);
     }
-
     //create the relationship node and add the object
     $predicate_array = FedoraAPIUtils::explodePredicate($predicate);
     $rdf_xml_relationship_to_write = $relationship_datastream_parser->createElementNS($predicate_array['namespace'], $predicate_array['local_name']);
@@ -1102,17 +1099,13 @@ class FedoraAPIM {
     }
     else {//if the object is not a literal then it is added to rdf:resource attribute
       $rdf_xml_relationship_to_write->setAttributeNS($rdf_namespace, 'resource', $object);
-      dsm('is resource');
     }
-
     //add the new relationship to the datastream
     $description_node->appendChild($rdf_xml_relationship_to_write);
-    dsm($relationship_datastream_parser->saveXML());
 
     //upload the updated or new datastream if $new, if $update
 
     if (!isset($object_datastreams[$target_datastream])) {
-      dsm('adding ' . $target_datastream);
       $response = $this->addDatastream($pid, $target_datastream, $file_path = NULL,
         $ds_string = $relationship_datastream_parser->saveXML(), $params = array(
           'controlGroup' => 'X',
@@ -1128,7 +1121,6 @@ class FedoraAPIM {
         ));
     }
     else {
-      dsm('modifying ' . $target_datastream);
       $response = $this->modifyDatastream($pid, $target_datastream, $file_path = NULL,
         $ds_string = $relationship_datastream_parser->saveXML(), $params = array(
           'dsLocation' => NULL,
@@ -1179,7 +1171,6 @@ class FedoraAPIM {
       throw new FedoraApiRestException($response);
     }
     */
-    dsm($response);
 
     return $response;
   }
