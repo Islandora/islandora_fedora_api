@@ -1076,7 +1076,7 @@ class FedoraAPIM {
       if (!$description_node_found) {//create an "about" node if there isn't one for the subject
         $description_node = $relationship_datastream_parser->createElementNS($rdf_namespace, 'Description');
         $description_node->setAttributeNS($rdf_namespace, 'about', $optional_args['subject']);
-        $relationship_datastream_parser_root = $relationship_datastream_parser->document_element();
+        $relationship_datastream_parser_root = $relationship_datastream_parser->documentElement;
         $relationship_datastream_parser_root->appendChild($description_node);
       }
     }
