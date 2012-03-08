@@ -1,5 +1,6 @@
 <?php
 /**
+ * DO NOT USE, UNSTABLE
  * @file
  *   A group of functions meant to make interacting with the resource index easier
  * @author

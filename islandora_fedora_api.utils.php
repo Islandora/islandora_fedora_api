@@ -1,5 +1,6 @@
 <?php
 /**
+ * DO NOT USE, UNSTABLE
  * @file
  *   This file is meant to provide usefull functions for dealing with fedora
  *   that are not done on individual objects or datastreams
