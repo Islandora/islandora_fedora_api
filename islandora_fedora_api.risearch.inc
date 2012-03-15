@@ -9,6 +9,7 @@
  * @todo support export as object
  * @todo support export as json serialized
  * @todo support export as array (paul did this for itql see lower in the file)
+ * @todo examine use cases regarding objects in a deleted state: should they be returned on default queries?
  */
 
 
