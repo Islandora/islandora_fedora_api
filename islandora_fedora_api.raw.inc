@@ -997,7 +997,6 @@ class FedoraAPIM {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
-
     return $response;
   }
 
@@ -1104,7 +1103,7 @@ class FedoraAPIM {
     $description_node->appendChild($rdf_xml_relationship_to_write);
 
     //upload the updated or new datastream if $new, if $update
-
+    
     if (!isset($object_datastreams[$target_datastream])) {
       $response = $this->addDatastream($pid, $target_datastream, $file_path = NULL,
         $ds_string = $relationship_datastream_parser->saveXML(), $params = array(
@@ -1197,6 +1196,61 @@ class FedoraAPIM {
    *  @return StdClass HTTP response object
    */
   public function purgeRelationship($pid, $predicate, $object, $optional_args = NULL) {
+    //constants
+    $rdf_namespace = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+
+    //figure out which datastream to add the relationship to
+    if (isset($optional_args['subject'])) {
+      if ($optional_args['subject'] != 'info:fedora/' . $pid) {
+        $target_datastream = 'RELS-INT';
+      }
+    }
+    else {
+      //set this for use in xml
+      $optional_args['subject'] = 'info:fedora/' . $pid;
+    }
+    if (!isset($target_datastream)) {
+      $target_datastream = 'RELS-EXT';
+    }
+    if (!isset($optional_args['isLiteral'])) { //set is_literal if not set to FALSE to simplify logic
+      $optional_args['isLiteral'] = FALSE;
+    }
+
+    module_load_include('object.inc', 'islandora_fedora_api');
+    $fedora_object = new FedoraObject($pid);
+    $object_datastreams = $fedora_object->get_datastreams();
+    $relationship_datastream_parser = new DOMDocument();
+    
+    $target_datastream_string = $object_datastreams[$target_datastream]->content;
+    
+    $relationship_datastream_parser->loadXML($target_datastream_string);
+    $predicate_array = FedoraAPIUtils::explodePredicate($predicate);
+    #get all the elements with the predicate
+    $possible_elements = $relationship_datastream_parser->getElementsByTagNameNS($predicate_array['namespace'], $predicate_array['local_name']);
+    
+    #filter by subject and object
+    foreach ($possible_elements as $possible_element) {
+      #the subject is in the parent element 'descrition'
+      $description_about = $possible_element->parentNode->getAttributeNS($rdf_namespace, 'about');
+      //when in the description of the subject
+      if ($description_about == $optional_args['subject']) {
+       //checkout the object of the relationship
+        if ($optional_args['isLiteral']) {//if the object is a literal then it is added to the element's text
+         //check the text for the object
+         if($possible_element->nodeValue == $object) {
+          $possible_element->parentNode->removeChild($possible_element);//removes the node it's the target
+         }
+        }
+        else {
+         //check rdf:resource
+         if($possible_element->getAttributeNS($rdf_namespace, 'resource') == $object) {
+          $possible_element->parentNode->removeChild($possible_element);//removes the node it's the target
+         }
+        }
+      }
+    }
+    
+    /*
     $pid = drupal_urlencode($pid);
       //druapl url encode should not be used for string arugments
     if (!empty($predicate)) {
@@ -1222,6 +1276,22 @@ class FedoraAPIM {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
+    */
+    $response = $this->modifyDatastream($pid, $target_datastream, $file_path = NULL,
+      $ds_string = $relationship_datastream_parser->saveXML(), $params = array(
+        'dsLocation' => NULL,
+        'altIDs' => NULL,
+        'dsLabel' => NULL,
+        'versionable' => NULL,
+        'dsState' => NULL,
+        'formatURI' => NULL,
+        'checksumType' => NULL,
+        'checksum' => NULL,
+        'mimeType' => 'text/xml',
+        'logMessage' => 'Datastream updated via addRelationship method of islandora_fedora_api',
+        'force' => NULL,
+        'ignoreContent' => NULL
+      ));
 
     return $response;
   }
