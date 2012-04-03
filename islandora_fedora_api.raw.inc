@@ -1038,6 +1038,7 @@ class FedoraAPIM {
     if (isset($optional_args['subject'])) {
       if ($optional_args['subject'] != 'info:fedora/' . $pid) {
         $target_datastream = 'RELS-INT';
+        $datastream_label = 'Relationships';
       }
     }
     else {
@@ -1046,6 +1047,7 @@ class FedoraAPIM {
     }
     if (!isset($target_datastream)) {
       $target_datastream = 'RELS-EXT';
+      $datastream_label = 'RDF Statements about this Object';
     }
 
     module_load_include('object.inc', 'islandora_fedora_api');
@@ -1110,7 +1112,7 @@ class FedoraAPIM {
           'controlGroup' => 'X',
           'dsLocation' => NULL,
           'altIDs' => NULL,
-          'dsLabel' => NULL,
+          'dsLabel' => $datastream_label,
           'dsState' => NULL,
           'formatURI' => NULL,
           'checksumType' => NULL,
