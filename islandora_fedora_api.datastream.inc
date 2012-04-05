@@ -1,6 +1,7 @@
 <?php
 /**
  * @file
+ * @TODO: datastream should probalby have mime type mutable, especialy on set content RE: adam-vessey
  */
 //include_once('fedora_api.item.inc');
 include_once('PropertyObject.inc');
