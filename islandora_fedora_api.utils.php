@@ -156,7 +156,46 @@ return '';
   $resultsarray[] = substr($result->object->attributes()->uri, 12); // Remove 'info:fedora/'.
   }
   return $resultsarray;
-  }*/
+  }
+
+  /**
+ * This function will retrieve an object's relationship RELS-EXT
+ *
+ * @param string $object_id
+ *   the fedora pid of the object to check the status of
+ *
+ * @return array
+ *   an array of the relationship objects
+ *
+function some_module_get_object_relationships($object_id, $predicate_namespace, $predicate_local_name) {
+  module_load_include('raw.inc', 'islandora_fedora_api');
+  $apim_object = new FedoraAPIM();
+
+  try {
+    $relationships = $apim_object->getRelationships($object_id, $predicate_namespace . $predicate_local_name);
+  }
+  catch (FedoraAPIRestException $e) {
+    return FALSE;
+  }
+
+  $relationships_parser = new DOMDocument();
+  $relationships_parser->loadXML($relationships->data);
+
+  $elements = $relationships_parser->getElementsByTagNameNS($predicate_namespace, $predicate_local_name);
+  // This is only working for one object we need a foreach elements
+  $element = $elements->item(0)->firstChild;
+  if ($element) {
+    $element = $element->nodeValue;
+    return $element;
+  }
+
+  return FALSE;
+}
+
+
+
+
+  */
 
 /**
  * This function will get the collection that the indicated object is a member of
