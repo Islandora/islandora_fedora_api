@@ -58,7 +58,7 @@ class FedoraObject extends PropertyObject {
     else {
       // Test if this object exists here, so requests for objects that don't exist
       // don't hit the Fedora logs.
-      if(!$this->client->objectExists($pid)) {
+      if (!$this->client->objectExists($pid)) {
         module_load_include('exception.inc', 'islandora_fedora_api');
         throw new FedoraAPIObjectNotFoundException($pid);
       }
@@ -90,7 +90,7 @@ class FedoraObject extends PropertyObject {
    * @param type $dsID
    * @param string $file_path
    * @param string $ds_string
-   * @param type $params 
+   * @param type $params
    */
   public function addDatastream($dsID, $file_path = NULL, $ds_string = NULL, $params = array('altIDs' => NULL, 'controlGroup' => NULL, 'dsLabel' => NULL, 'dsState' => NULL, 'formatURI' => NULL,
     'checksumType' => NULL, 'checksum' => NULL, 'mimeType' => NULL,
@@ -220,11 +220,11 @@ class FedoraObject extends PropertyObject {
 
   /**
    * Wrapper for Fedora's modifyObject REST call. Updates the local objectProfile after each call.
-   * 
+   *
    * @param type $label
    * @param type $ownerId
-   * @param type $state One of 'A' for active, 'D' for deleted, or 'I' for inactive 
-   * @param type $logMessage 
+   * @param type $state One of 'A' for active, 'D' for deleted, or 'I' for inactive
+   * @param type $logMessage
    */
   public function modifyObject($label = NULL, $ownerId = NULL, $state = NULL, $logMessage = NULL) {
     $response = $this->client->apim->modifyObject($this->pid, $label, $ownerId, $state, $logMessage);

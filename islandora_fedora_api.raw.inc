@@ -88,14 +88,14 @@ class FedoraAPIA {
    */
   public function findObjects($terms = '', $query = '', $maxResults = '',
     $resultFormat = 'xml', $displayFields = array('pid', 'title')
-  ){
+  ) {
     $fedora_url = $this->connection->requestURL();
     $request = "$fedora_url/objects?";
 
     if (!empty($terms)) {
       $request .= "terms=" . drupal_urlencode($terms);
     }
-    else if (!empty($query)) {
+    elseif (!empty($query)) {
       $request .= "query=" . drupal_urlencode($query);
     }
 
@@ -148,7 +148,7 @@ class FedoraAPIA {
 
     $response = drupal_http_request($request);
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
@@ -184,7 +184,7 @@ class FedoraAPIA {
 
     $response = drupal_http_request($request);
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
@@ -218,7 +218,7 @@ class FedoraAPIA {
     $request = "$fedora_url/objects/$pid/versions?format=$format";
     $response = drupal_http_request($request);
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
@@ -271,7 +271,7 @@ class FedoraAPIA {
 
     $response = drupal_http_request($request);
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
@@ -311,7 +311,7 @@ class FedoraAPIA {
     $request .= (!empty($asOfDateTime) ? "&asOfDateTime=$asOfDateTime" : '');
     $response = drupal_http_request($request);
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
@@ -357,7 +357,7 @@ class FedoraAPIA {
     $request .= (!empty($asOfDateTime) ? "&asOfDateTime=$asOfDateTime" : '');
     $response = drupal_http_request($request);
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
@@ -492,7 +492,7 @@ class FedoraAPIM {
 
     $response = drupal_http_request($request, $headers, 'POST', $request_params);
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
@@ -534,7 +534,7 @@ class FedoraAPIM {
              . (!empty($encoding) ? "encoding=$encoding" : '');
     $response = drupal_http_request($request);
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
@@ -603,7 +603,7 @@ class FedoraAPIM {
     }
     $response = drupal_http_request($request);
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
@@ -642,7 +642,7 @@ class FedoraAPIM {
              . (!empty($format) ? "format=$format" : '');
     $response = drupal_http_request($request, array(), 'POST');
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
@@ -662,7 +662,7 @@ class FedoraAPIM {
     $request = $fedora_url . "/objects/$pid/objectXML";
     $response = drupal_http_request($request);
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
@@ -694,7 +694,7 @@ class FedoraAPIM {
   public function ingest( $foxml_file = NULL, $foxml_string = NULL, $pid = NULL, $new = TRUE, $label = NULL,
     $format = 'info:fedora/fedora-system:FOXML-1.1', $encoding = 'UTF-8', $namespace = NULL, $ownerId = NULL,
     $logMessage = NULL, $ignoreMime = 'false'
-  ){
+  ) {
     if (empty($pid)) {
       // Set $new to TRUE regardless of what the user specified if no PID is given
       $pid = "new";
@@ -736,7 +736,7 @@ class FedoraAPIM {
              . (!empty($ignoreMime) ? "ignoreMime=$ignoreMime&" : '');
     $response = drupal_http_request($request, $headers, 'POST', $params);
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
@@ -748,7 +748,7 @@ class FedoraAPIM {
   /**
    * Modify the parameters of a Fedora datastream.
    *
-   * Note: Due ot a bug in Fedora you need to specify the Mime Type for each call.
+   * Note: Due to a bug in Fedora you need to specify the Mime Type for each call.
    *
    * @param <type> $pid
    * @param <type> $dsID
@@ -807,7 +807,7 @@ class FedoraAPIM {
       'force' => NULL,
       'ignoreContent' => NULL
     )
-  ){
+  ) {
     $pid = drupal_urlencode($pid);
 
     foreach (array('dsLabel', 'formatURI', 'logMessage') as $string_param) {
@@ -836,23 +836,25 @@ class FedoraAPIM {
     /*
      * This code block attempts to run the request mulitple times
      * if there is a 'Conflict' response which can indicate that Fedora
-     * simply needs more time to finish its last operation on the object
+     * simply needs more time to finish its last operation on the object.
      *
      * This needs some more thorough testing
      *
      * if this 'Conflict' gets noted during other rest calls this should be
      * turned into a function
+     * It has been noted, this needs to be pulled out and all calls to Fedora that
+     * change files should got through it.
      * @author
      *   William Panting
      */
     $attempts=0;
-    while($response->code==409 && $attempts<3) {
+    while ($response->code==409 && $attempts<3) {
       $response = drupal_http_request($request, $headers, 'PUT', $data);
       $attempts++;
     }
 
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
@@ -875,7 +877,7 @@ class FedoraAPIM {
              . (!empty($state) ? "state=$state" : '')
              . (!empty($logMessage) ? "logMessage=$logMessage" : '');
     $response = drupal_http_request($request, array(), 'PUT');
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
@@ -916,7 +918,7 @@ class FedoraAPIM {
              . (!empty($force) ? "force=$force" : '');
     $response = drupal_http_request($request, array(), 'DELETE');
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
@@ -945,7 +947,7 @@ class FedoraAPIM {
              . (!empty($force) ? "force=$force" : '');
     $response = drupal_http_request($request, array(), 'DELETE');
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       throw new FedoraApiRestException($response);
     }
 
@@ -986,16 +988,15 @@ class FedoraAPIM {
     $fedora_url = $this->connection->requestURL();
     $request = $fedora_url . "/objects/$pid/relationships?";
     $request .= (!empty($subject) ? "subject=$subject&" : '')
-                         .(!empty($predicate) ? "predicate=$predicate&" : '')
-                         .(!empty($format) ? "format=$format" : '');
+                         . (!empty($predicate) ? "predicate=$predicate&" : '')
+                         . (!empty($format) ? "format=$format" : '');
 
     $response = drupal_http_request($request, array(), 'GET');
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
-
     return $response;
   }
 
@@ -1013,40 +1014,164 @@ class FedoraAPIM {
    *    object of the relationship
    *  @param array $optional_args
    *  	(optional) This is an associative array of the optional arguments for the rest api the format is:
-   *  		string is_literal
+   *  		string isLiteral
    *    	    (optional) true if the object of the relationship is a literal, false if it is a fedora pid
    *      string subject
-   *        (optional) either a uri for the boject or one of its datastreams, defaults to the object pid
+   *        (optional) either the URI of the Fedora object's pid or the URI of one of its datastreams, defaults to the Fedora object's URI
    *      string datatype
-   *        (optional)  The data type of the object, only supply if the object is a literal
+   *        (optional)  The data type of the RDF object, only supply if the object is a literal
    *  @return StdClass HTTP response object
+   *
+   *  @todo: refactor to use lower level api elements
    */
   public function addRelationship($pid, $predicate, $object, $optional_args = NULL) {
+    //check predicate namespace for the fragment identifier
+    if (!FedoraAPIUtils::validateRDFPredicate($predicate)) {
+      throw new Exception("There is an issue translating RDF to XML that has Fedora mangling namespaces
+    					that do not end in Fragment identifiers when this REST call is made.  One of these was found
+            	in the $predicate so the relationship was not added so as to prevent mangling.");
+    }
+    //constants
+    $rdf_namespace = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+
+    //figure out which datastream to add the relationship to
+    if (isset($optional_args['subject'])) {
+      if ($optional_args['subject'] != 'info:fedora/' . $pid) {
+        $target_datastream = 'RELS-INT';
+        $datastream_label = 'Relationships';
+      }
+    }
+    else {
+      //set this for use in xml
+      $optional_args['subject'] = 'info:fedora/' . $pid;
+    }
+    if (!isset($target_datastream)) {
+      $target_datastream = 'RELS-EXT';
+      $datastream_label = 'RDF Statements about this Object';
+    }
+
+    module_load_include('object.inc', 'islandora_fedora_api');
+    $fedora_object = new FedoraObject($pid);
+    $object_datastreams = $fedora_object->get_datastreams();
+    $relationship_datastream_parser = new DOMDocument();
+
+    //if the datastream is populated
+    if (isset($object_datastreams[$target_datastream])) {
+      //get the current datastream
+      $relationship_datastream_string = $object_datastreams[$target_datastream]->content;
+      $relationship_datastream_parser->loadXML($relationship_datastream_string);
+      $description_elements = $relationship_datastream_parser->getElementsByTagName('Description');
+      $description_node_found = FALSE;
+
+      foreach ($description_elements as $description_element) {
+        if ($description_element->hasAttributeNS($rdf_namespace, 'about')) {
+          $description_about = $description_element->getAttributeNS($rdf_namespace, 'about');
+          //when in the description of the subject
+          if ($description_about == $optional_args['subject']) {
+            $description_node_found = TRUE;
+            $description_node = $description_element;
+            break;
+          }
+        }
+      }
+      if (!$description_node_found) {//create an "about" node if there isn't one for the subject
+        $description_node = $relationship_datastream_parser->createElementNS($rdf_namespace, 'Description');
+        $description_node->setAttributeNS($rdf_namespace, 'about', $optional_args['subject']);
+        $relationship_datastream_parser_root = $relationship_datastream_parser->documentElement;
+        $relationship_datastream_parser_root->appendChild($description_node);
+      }
+    }
+    else {//if the datastream does not exist yet
+      //create a RELS datastream
+      $relationship_datastream_string = '<rdf:RDF xmlns:rdf="' . $rdf_namespace . '" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:fedora="info:fedora/fedora-system:def/relations-external#" xmlns:fedora-model="info:fedora/fedora-system:def/model#"><rdf:Description rdf:about="'. $optional_args['subject'] .'" > </rdf:Description></rdf:RDF>';
+      $relationship_datastream_parser->loadXML($relationship_datastream_string);
+      $description_elements = $relationship_datastream_parser->getElementsByTagName('Description');
+      $description_node = $description_elements->item(0);
+    }
+    //create the relationship node and add the object
+    $predicate_array = FedoraAPIUtils::explodePredicate($predicate);
+    $rdf_xml_relationship_to_write = $relationship_datastream_parser->createElementNS($predicate_array['namespace'], $predicate_array['local_name']);
+    if (!isset($optional_args['isLiteral'])) {//set is_literal if not set to FALSE to simplify logic
+      $optional_args['isLiteral'] = FALSE;
+    }
+    if ($optional_args['isLiteral']) {//if the object is a literal then it is added to the element's text
+      $relationship_text = $relationship_datastream_parser->createTextNode($object);
+      $rdf_xml_relationship_to_write->appendChild($relationship_text);
+    }
+    else {//if the object is not a literal then it is added to rdf:resource attribute
+      $rdf_xml_relationship_to_write->setAttributeNS($rdf_namespace, 'resource', $object);
+    }
+    //add the new relationship to the datastream
+    $description_node->appendChild($rdf_xml_relationship_to_write);
+
+    //upload the updated or new datastream if $new, if $update
+    
+    if (!isset($object_datastreams[$target_datastream])) {
+      $response = $this->addDatastream($pid, $target_datastream, $file_path = NULL,
+        $ds_string = $relationship_datastream_parser->saveXML(), $params = array(
+          'controlGroup' => 'X',
+          'dsLocation' => NULL,
+          'altIDs' => NULL,
+          'dsLabel' => $datastream_label,
+          'dsState' => NULL,
+          'formatURI' => NULL,
+          'checksumType' => NULL,
+          'checksum' => NULL,
+          'mimeType' => 'text/xml',
+          'logMessage' => 'Datastream created via addRelationship method of islandora_fedora_api',
+        ));
+    }
+    else {
+      $response = $this->modifyDatastream($pid, $target_datastream, $file_path = NULL,
+        $ds_string = $relationship_datastream_parser->saveXML(), $params = array(
+          'dsLocation' => NULL,
+          'altIDs' => NULL,
+          'dsLabel' => NULL,
+          'versionable' => NULL,
+          'dsState' => NULL,
+          'formatURI' => NULL,
+          'checksumType' => NULL,
+          'checksum' => NULL,
+          'mimeType' => 'text/xml',
+          'logMessage' => 'Datastream updated via addRelationship method of islandora_fedora_api',
+          'force' => NULL,
+          'ignoreContent' => NULL
+        ));
+    }
+    /*
+     //this code is for the add relationship REST call that we will not be using because it mangles
+    //XML namespaces that do not end in Fragment Identifiers
+    //to use this we would have to download and check the datastream for pre-exisiting namespaces
+    //that do not have fragment identifiers so to not use it is a performance optimization
+    */
+    /*
     $pid = drupal_urlencode($pid);
-      //druapl url encode should not be used for string arugments
+    //drupal url encode should not be used for string arugments
     if (!empty($predicate)) {
-      $predicate=urlencode($predicate);
+        $predicate = urlencode($predicate);
     }
     if (!empty($object)) {
-      $object=urlencode($object);
+        $object = urlencode($object);
     }
     if (isset($optional_args['subject'])) {
-      $optional_args['subject']=urlencode($optional_args['subject']);
+        $optional_args['subject'] = urlencode($optional_args['subject']);
     }
 
     $fedora_url = $this->connection->requestURL();
     $request = $fedora_url . "/objects/$pid/relationships/new?";
     $request .= (isset($optional_args['subject']) ? "subject=" . $optional_args['subject'] . "&" : '')
-                         ."predicate=$predicate&"
-                         ."object=$object&"
-                         .(isset($optional_args['isLiteral']) ? "isLiteral=". $optional_args['isLiteral'] ."&" : '')
-                         .(isset($optional_args['datatype']) ? "datatype=". $optional_args['datatype'] : '');
+                         . "predicate=$predicate&"
+                         . "object=$object&"
+                         . (isset($optional_args['isLiteral']) ? "isLiteral=". $optional_args['isLiteral'] ."&" : '')
+                         . (isset($optional_args['datatype']) ? "datatype=". $optional_args['datatype'] : '');
+
     $response = drupal_http_request($request, array(), 'POST');
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
+    */
 
     return $response;
   }
@@ -1073,6 +1198,61 @@ class FedoraAPIM {
    *  @return StdClass HTTP response object
    */
   public function purgeRelationship($pid, $predicate, $object, $optional_args = NULL) {
+    //constants
+    $rdf_namespace = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+
+    //figure out which datastream to add the relationship to
+    if (isset($optional_args['subject'])) {
+      if ($optional_args['subject'] != 'info:fedora/' . $pid) {
+        $target_datastream = 'RELS-INT';
+      }
+    }
+    else {
+      //set this for use in xml
+      $optional_args['subject'] = 'info:fedora/' . $pid;
+    }
+    if (!isset($target_datastream)) {
+      $target_datastream = 'RELS-EXT';
+    }
+    if (!isset($optional_args['isLiteral'])) { //set is_literal if not set to FALSE to simplify logic
+      $optional_args['isLiteral'] = FALSE;
+    }
+
+    module_load_include('object.inc', 'islandora_fedora_api');
+    $fedora_object = new FedoraObject($pid);
+    $object_datastreams = $fedora_object->get_datastreams();
+    $relationship_datastream_parser = new DOMDocument();
+    
+    $target_datastream_string = $object_datastreams[$target_datastream]->content;
+    
+    $relationship_datastream_parser->loadXML($target_datastream_string);
+    $predicate_array = FedoraAPIUtils::explodePredicate($predicate);
+    #get all the elements with the predicate
+    $possible_elements = $relationship_datastream_parser->getElementsByTagNameNS($predicate_array['namespace'], $predicate_array['local_name']);
+    
+    #filter by subject and object
+    foreach ($possible_elements as $possible_element) {
+      #the subject is in the parent element 'descrition'
+      $description_about = $possible_element->parentNode->getAttributeNS($rdf_namespace, 'about');
+      //when in the description of the subject
+      if ($description_about == $optional_args['subject']) {
+       //checkout the object of the relationship
+        if ($optional_args['isLiteral']) {//if the object is a literal then it is added to the element's text
+         //check the text for the object
+         if($possible_element->nodeValue == $object) {
+          $possible_element->parentNode->removeChild($possible_element);//removes the node it's the target
+         }
+        }
+        else {
+         //check rdf:resource
+         if($possible_element->getAttributeNS($rdf_namespace, 'resource') == $object) {
+          $possible_element->parentNode->removeChild($possible_element);//removes the node it's the target
+         }
+        }
+      }
+    }
+    
+    /*
     $pid = drupal_urlencode($pid);
       //druapl url encode should not be used for string arugments
     if (!empty($predicate)) {
@@ -1088,16 +1268,32 @@ class FedoraAPIM {
     $fedora_url = $this->connection->requestURL();
     $request = $fedora_url . "/objects/$pid/relationships?";
     $request .= (isset($optional_args['subject']) ? "subject=" . $optional_args['subject'] . "&" : '')
-                         ."predicate=$predicate&"
-                         ."object=$object&"
-                         .(isset($optional_args['isLiteral']) ? "isLiteral=". $optional_args['isLiteral'] ."&" : '')
-                         .(isset($optional_args['datatype']) ? "datatype=". $optional_args['datatype'] : '');
+                         . "predicate=$predicate&"
+                         . "object=$object&"
+                         . (isset($optional_args['isLiteral']) ? "isLiteral=". $optional_args['isLiteral'] ."&" : '')
+                         . (isset($optional_args['datatype']) ? "datatype=". $optional_args['datatype'] : '');
     $response = drupal_http_request($request, array(), 'DELETE');
 
-    if(!FedoraAPIUtils::testSuccess($response)) {
+    if (!FedoraAPIUtils::testSuccess($response)) {
       module_load_include('exception.inc', 'islandora_fedora_api');
       throw new FedoraApiRestException($response);
     }
+    */
+    $response = $this->modifyDatastream($pid, $target_datastream, $file_path = NULL,
+      $ds_string = $relationship_datastream_parser->saveXML(), $params = array(
+        'dsLocation' => NULL,
+        'altIDs' => NULL,
+        'dsLabel' => NULL,
+        'versionable' => NULL,
+        'dsState' => NULL,
+        'formatURI' => NULL,
+        'checksumType' => NULL,
+        'checksum' => NULL,
+        'mimeType' => 'text/xml',
+        'logMessage' => 'Datastream updated via addRelationship method of islandora_fedora_api',
+        'force' => NULL,
+        'ignoreContent' => NULL
+      ));
 
     return $response;
   }
@@ -1110,6 +1306,85 @@ class FedoraAPIM {
  * @todo Should this be refactored out into its own file?
  */
 class FedoraAPIUtils {
+
+  /**
+   * This function will check an RDF predicate for correctness.  This currently
+   * means that it will make sure that the namespace is sepearated from the idiom
+   * by a Fragment Identifier.  This is to insure that inapropriate xml namespaces
+   * are not used for RDF.  This functionality can be expanded in the future as needed.
+   * @param $predicate
+   *   The predicate to check for correctness
+   * @return bool
+   *   True if the predicate passes testing
+   *   False if the predicate does not pass testing
+   */
+  public static function validateRDFPredicate($predicate) {
+     //if a # comes after the last / we are good
+     $hash_position = strrpos($predicate, '#');
+     $slash_position = strrpos($predicate, '/');
+     return $hash_position && $slash_position && !($slash_position > $hash_position);
+  }
+
+  /**
+   * This funciton will take an RDF predicate and turn it into an XML
+   * namespace and local name.
+   *
+   * @param string $predicate
+   *   The RDF predicate to transform
+	 * @return array $predicate_array
+	 *   An associative array conataining
+	 *   ('namespace'=>'','local_name'=>'')
+   */
+  public static function explodePredicate($predicate) {
+    $tmp_predicate_array = explode('#', $predicate);
+    $predicate_array = array('namespace' => $tmp_predicate_array[0] . '#',
+      'local_name' => $tmp_predicate_array[1]);
+    return $predicate_array;
+  }
+
+  /**
+   * This function will check the offending object's RELS-INT or RELS-EXT for
+   * non-deliminated namespaces.  This is necessary because Fedora will mangle
+   * namespaces and element names for entries that do not have their namespaces
+   * end in Fragment Identifiers.
+   * @note
+   * 	 This function is not used in the API but we should leave it in so that
+   *   if someone needs to repair some broken namespaces they will not need to
+   *	 recreate this function.
+   * @param $object_id
+   *   The fedora pid of the object to check
+   * @param $dsid
+   *   The fedora datastrem id fo the object to check
+   * @return bool
+   *   True if there are no broken namespaces
+   *   False if there are broken namespaces or if an improper DSID is set
+   */
+  public static function validateRDFNamespacesInRELS($object_id, $datastream_id) {
+    if ($datastream_id != 'RELS-EXT' && $datastream_id != 'RELS-INT') {
+      return FALSE;
+    }
+    module_load_include('object.inc', 'islandora_fedora_api');
+
+    $object = new FedoraObject($object_id);
+
+    $object_datastreams = $object->get_datastreams();
+
+    //proceed if the datastream exists
+    if (isset($object_datastreams[$datastream_id])) {
+      $relationship_datastream_string = $object_datastreams[$datastream_id]->content;
+      $relationship_datastream_parser = new SimpleXMLElement($relationship_datastream_string);
+      $relationship_datastream_namespaces = $relationship_datastream_parser->getNamespaces(true);
+      //iterate through namespaces and return false if one does not end in the Fragment Identifier
+      foreach ($relationship_datastream_namespaces as $relationship_namespace) {
+        $relationship_string_length = strlen($relationship_namespace);
+        if (substr($relationship_namespace, $relationship_string_length-1, 1) != '#') {
+          return FALSE;
+        }
+      }
+    }
+    //if a non-daliminated datastream was not found return true
+    return TRUE;
+  }
 
   /**
    * Tests if the given PID fits the general rules for a PID. Must start with a letter, must be less the 64 characters,
@@ -1174,18 +1449,18 @@ class FedoraAPIUtils {
     $replace = '';
     $new_dsid = preg_replace($find, $replace, $new_dsid);
 
-    if( strlen($new_dsid) > 64 ) {
+    if ( strlen($new_dsid) > 64 ) {
       $new_dsid = substr($new_dsid, -64);
     }
 
-    if( preg_match('/^[^a-zA-Z]/', $dsid )) {
-      if( strlen($new_dsid) == 64 ) {
+    if ( preg_match('/^[^a-zA-Z]/', $dsid )) {
+      if ( strlen($new_dsid) == 64 ) {
         $new_dsid = substr($new_dsid, -63);
       }
       $new_dsid = this::randomString() . $new_dsid;
     }
 
-    if( strlen($new_dsid) == 0 )
+    if ( strlen($new_dsid) == 0 )
       $new_dsid = this::randomString(10);
 
     return $new_dsid;
@@ -1197,8 +1472,8 @@ class FedoraAPIUtils {
 
     $string = '';
 
-    while( $length > 0 ) {
-      $string .= $array[rand(0,51)];
+    while ( $length > 0 ) {
+      $string .= $array[rand(0, 51)];
       $length--;
     }
 
@@ -1216,11 +1491,11 @@ class FedoraAPIUtils {
   static function testSuccess($http_response, $log = FALSE, $request = '') {
     $code = (string) $http_response->code;
 
-    if( $code[0] == '2' ) {
+    if ( $code[0] == '2' ) {
       return TRUE;
     }
     else {
-      if( $log == TRUE ) {
+      if ( $log == TRUE ) {
         this::logError($http_response, $request);
       }
       return FALSE;
